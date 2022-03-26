@@ -189,6 +189,11 @@ class ReadData with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  void addTodo() {
+    _listToday = todoList;
+    notifyListeners();
+  }
+
   List<dynamic> getData() {
     return _listToday;
   }

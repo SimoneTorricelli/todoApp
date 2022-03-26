@@ -8,6 +8,7 @@ import 'package:todo/utility/widget/timeline.dart';
 import '../model/todoModels.dart';
 
 List<dynamic> todoList = [];
+Box<dynamic> todoBox = Hive.box("Todo");
 
 class Home extends StatefulWidget {
   const Home();
@@ -17,31 +18,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Box<dynamic> todoBox = Hive.box("Todo");
-
   @override
   void initState() {
     super.initState();
     todoList = todoBox.values.toList();
-    todoList.add(Todo(
-        sottotitolo: "Sottotitolo",
-        titolo: "Titolo",
-        completato: false,
-        data: DateTime.now(),
-        id: 0));
-    todoList.add(Todo(
-        sottotitolo: "Sottotitolo",
-        titolo: "Titolo",
-        completato: false,
-        data: DateTime.now(),
-        id: 0));
-    todoList.add(Todo(
-        sottotitolo:
-            "Sottotitolo tanto lungo quindi cosa faccio tanto lungo quindi cosa faccio tanto lungo quindi cosa faccio tanto lungo quindi cosa faccio tanto lungo quindi cosa faccio tanto lungo quindi cosa faccio",
-        titolo: "Titolo tanto lungo quindi cosa faccio",
-        completato: false,
-        data: DateTime.now(),
-        id: 0));
   }
 
   @override

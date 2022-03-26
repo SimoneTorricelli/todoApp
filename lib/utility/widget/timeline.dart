@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/home/home.dart';
 import 'package:todo/utility/widget/calendar.dart';
 
+import '../../model/todoModels.dart';
 import 'calendar.dart';
 
 int currentSelectedIndex = 0;
@@ -22,16 +25,7 @@ class _TimelineState extends State<Timeline> {
   _TimelineState();
 
   @override
-  void initState() {
-    setState(() {
-      todoOfToday = todoList
-          .where((element) =>
-              element.data.toString().substring(0, 10) ==
-              selectedDate.toString().substring(0, 10))
-          .toList();
-    });
-    super.didChangeDependencies();
-  }
+  void initState() {}
 
   @override
   void dispose() {
@@ -41,6 +35,8 @@ class _TimelineState extends State<Timeline> {
   @override
   Widget build(BuildContext context) {
     ReadData readData = Provider.of<ReadData>(context);
+    readData.setData();
+
     return Container(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -79,6 +75,9 @@ class _TimelineState extends State<Timeline> {
                         ],
                       );
                     }),
+              ),
+              SizedBox(
+                height: 100,
               ),
             ],
           ),
@@ -224,15 +223,43 @@ class ContainerTodo extends StatefulWidget {
       _ContainerTodoState(this.todo, this.index, this.onTap);
 }
 
-class _ContainerTodoState extends State<ContainerTodo> {
+class _ContainerTodoState extends State<ContainerTodo>
+    with TickerProviderStateMixin {
   final todo;
   final index;
   Function() onTap;
 
   _ContainerTodoState(this.todo, this.index, this.onTap);
 
+  AnimationController? controller;
+  Animation? animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 225),
+      vsync: this,
+    );
+
+    final CurvedAnimation curve =
+        CurvedAnimation(parent: controller!, curve: Curves.easeOut);
+
+    animation = Tween(begin: 0.0, end: 1.0).animate(curve)
+      ..addListener(() => setState(() {}));
+    controller?.forward(from: 0.0);
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ReadData readData = Provider.of<ReadData>(context);
     return GestureDetector(
       onTap: () {
         onTap();
@@ -245,45 +272,145 @@ class _ContainerTodoState extends State<ContainerTodo> {
             borderRadius: BorderRadius.circular(10)),
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                offset: const Offset(12, 26),
+                                blurRadius: 50,
+                                spreadRadius: 0,
+                                color: Colors.grey.withOpacity(.25)),
+                          ]),
+                      child: IconButton(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        icon: Icon(
+                          widget.todo.completato == false
+                              ? Icons.check
+                              : Icons.close,
+                          size: 15,
+                          color: Colors.deepOrangeAccent,
+                        ),
+                        onPressed: () {
+                          var todonew = Todo(
+                            titolo: widget.todo.titolo,
+                            sottotitolo: widget.todo.sottotitolo,
+                            id: widget.todo.id,
+                            completato: !widget.todo.completato,
+                            data: widget.todo.data,
+                          );
+                          controller?.forward(from: 0.0);
+                          todoBox.putAt(widget.todo.id - 1, todonew);
+                          todoList = todoBox.values.toList();
+                          readData.addTodo();
+                          log(widget.todo.completato.toString());
+                        },
+                      )),
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 230,
-                    child: Text(
-                      widget.todo.titolo,
-                      style: TextStyle(
-                          color: currentSelectedIndex == index
-                              ? Colors.white
-                              : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24),
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: 230,
+                            child: Text(
+                              widget.todo.titolo,
+                              style: TextStyle(
+                                  color: currentSelectedIndex == index
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24),
+                            ),
+                          ),
+                          Container(
+                            transform: Matrix4.identity()
+                              ..scale(animation?.value, 1.0),
+                            width: 230,
+                            child: Text(
+                              widget.todo.titolo,
+                              style: TextStyle(
+                                  decorationColor: currentSelectedIndex == index
+                                      ? Colors.white
+                                      : Colors.black,
+                                  decorationStyle: TextDecorationStyle.solid,
+                                  color: Colors.transparent,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: widget.todo.completato
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  fontSize: 24),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${widget.todo.data.hour} : ${widget.todo.data.minute}",
+                            style: TextStyle(
+                                color: currentSelectedIndex == index
+                                    ? Colors.white70
+                                    : Colors.black54,
+                                fontSize: 15),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  Text(
-                    "${widget.todo.data.hour} : ${widget.todo.data.minute}",
-                    style: TextStyle(
-                        color: currentSelectedIndex == index
-                            ? Colors.white70
-                            : Colors.black54,
-                        fontSize: 15),
-                  )
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Stack(
+                    children: [
+                      Container(
+                        child: Text(
+                          widget.todo.sottotitolo,
+                          style: TextStyle(
+                              color: currentSelectedIndex == index
+                                  ? Colors.white
+                                  : Colors.black54,
+                              fontSize: 16),
+                        ),
+                      ),
+                      Container(
+                        transform: Matrix4.identity()
+                          ..scale(animation?.value, 1.0),
+                        child: Text(
+                          widget.todo.sottotitolo,
+                          style: TextStyle(
+                              decorationColor: currentSelectedIndex == index
+                                  ? Colors.white
+                                  : Colors.black,
+                              decorationStyle: TextDecorationStyle.solid,
+                              color: Colors.transparent,
+                              fontWeight: FontWeight.bold,
+                              decoration: widget.todo.completato
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Text(
-                widget.todo.sottotitolo,
-                style: TextStyle(
-                    color: currentSelectedIndex == index
-                        ? Colors.white
-                        : Colors.black54,
-                    fontSize: 16),
               ),
             ],
           ),
