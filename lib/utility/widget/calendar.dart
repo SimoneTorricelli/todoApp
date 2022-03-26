@@ -176,7 +176,11 @@ class _CalendarState extends State<Calendar> {
 }
 
 class ReadData with ChangeNotifier, DiagnosticableTreeMixin {
-  List<dynamic> _listToday = [];
+  List<dynamic> _listToday = todoList
+      .where((element) =>
+          element.data.toString().substring(0, 10) ==
+          selectedDate.toString().substring(0, 10))
+      .toList();
 
   List<dynamic>? get listToday => _listToday;
 
@@ -191,6 +195,7 @@ class ReadData with ChangeNotifier, DiagnosticableTreeMixin {
 
   void addTodo() {
     _listToday = todoList;
+    setData();
     notifyListeners();
   }
 

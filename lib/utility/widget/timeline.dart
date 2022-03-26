@@ -25,7 +25,9 @@ class _TimelineState extends State<Timeline> {
   _TimelineState();
 
   @override
-  void initState() {}
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -35,8 +37,7 @@ class _TimelineState extends State<Timeline> {
   @override
   Widget build(BuildContext context) {
     ReadData readData = Provider.of<ReadData>(context);
-    readData.setData();
-
+    List<dynamic> listOfToday = readData.listToday!;
     return Container(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -53,20 +54,18 @@ class _TimelineState extends State<Timeline> {
                     separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(height: 0);
                     },
-                    itemCount: readData.listToday!.length,
+                    itemCount: listOfToday.length,
                     //controller: scrollController,
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {
                       return Stack(
                         children: [
-                          TimeLineGrafic(
-                              index, readData.listToday!.elementAt(index)),
+                          TimeLineGrafic(index, listOfToday.elementAt(index)),
                           Padding(
                             padding: const EdgeInsets.only(left: 30, top: 20),
                             child: ContainerTodo(
-                                readData.listToday!.elementAt(index), index,
-                                () {
+                                listOfToday.elementAt(index), index, () {
                               setState(() {
                                 currentSelectedIndex = index;
                               });

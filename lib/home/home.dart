@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:todo/home/add_todo.dart';
 import 'package:todo/utility/widget/calendar.dart';
 import 'package:todo/utility/widget/timeline.dart';
