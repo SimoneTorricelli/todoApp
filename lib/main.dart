@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/utility/widget/calendar.dart';
 
 import 'home/home.dart';
 import 'model/todoModels.dart';
@@ -19,7 +21,15 @@ Future<void> main() async {
 
   Hive.registerAdapter(TodoAdapter());
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => ReadData()),
+        ],
+        builder: (context, w) {
+          return const MyApp();
+        }),
+  );
 }
 
 class MyApp extends StatelessWidget {

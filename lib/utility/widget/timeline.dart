@@ -1,18 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo/home/home.dart';
+import 'package:todo/utility/widget/calendar.dart';
+
+import 'calendar.dart';
 
 int currentSelectedIndex = 0;
+List<dynamic> todoOfToday = todoList;
 
 class Timeline extends StatefulWidget {
-  const Timeline();
+  Timeline();
+
+  static State<StatefulWidget>? of(BuildContext context) =>
+      context.findAncestorStateOfType();
 
   @override
   _TimelineState createState() => _TimelineState();
 }
 
 class _TimelineState extends State<Timeline> {
+  _TimelineState();
+
+  @override
+  void initState() {
+    setState(() {
+      todoOfToday = todoList
+          .where((element) =>
+              element.data.toString().substring(0, 10) ==
+              selectedDate.toString().substring(0, 10))
+          .toList();
+    });
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ReadData readData = Provider.of<ReadData>(context);
     return Container(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -24,22 +52,25 @@ class _TimelineState extends State<Timeline> {
               Padding(
                 padding: const EdgeInsets.all(1.0),
                 child: ListView.separated(
+                    key: UniqueKey(),
                     shrinkWrap: true,
                     separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(height: 0);
                     },
-                    itemCount: todoList.length,
+                    itemCount: readData.listToday!.length,
                     //controller: scrollController,
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {
                       return Stack(
                         children: [
-                          TimeLineGrafic(index),
+                          TimeLineGrafic(
+                              index, readData.listToday!.elementAt(index)),
                           Padding(
                             padding: const EdgeInsets.only(left: 30, top: 20),
                             child: ContainerTodo(
-                                todoList.elementAt(index), index, () {
+                                readData.listToday!.elementAt(index), index,
+                                () {
                               setState(() {
                                 currentSelectedIndex = index;
                               });
@@ -59,43 +90,87 @@ class _TimelineState extends State<Timeline> {
 
 class TimeLineGrafic extends StatelessWidget {
   final index;
-  const TimeLineGrafic(this.index);
+  final todo;
+  const TimeLineGrafic(this.index, this.todo);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Stack(
-          children: [
-            AnimatedContainer(
-              height: 15,
-              width: 15,
-              decoration: BoxDecoration(
-                  color: Colors.deepOrange,
-                  borderRadius: BorderRadius.circular(50)),
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.bounceIn,
-            ),
-            Positioned(
-              left: 2.5,
-              top: 2.5,
-              child: AnimatedContainer(
-                height: 10,
-                width: 10,
+        if (index == currentSelectedIndex)
+          Stack(
+            children: [
+              AnimatedContainer(
+                height: 21,
+                width: 21,
                 decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.deepOrange,
                     borderRadius: BorderRadius.circular(50)),
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.bounceIn,
               ),
-            ),
-          ],
-        ),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: AnimatedContainer(
+                    height: 16,
+                    width: 16,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50)),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.bounceIn,
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: AnimatedContainer(
+                    height: 12,
+                    width: 12,
+                    decoration: BoxDecoration(
+                        color: Colors.deepOrange,
+                        borderRadius: BorderRadius.circular(50)),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.bounceIn,
+                  ),
+                ),
+              ),
+            ],
+          )
+        else
+          Stack(
+            children: [
+              AnimatedContainer(
+                height: 15,
+                width: 15,
+                decoration: BoxDecoration(
+                    color: Colors.deepOrange,
+                    borderRadius: BorderRadius.circular(50)),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.bounceIn,
+              ),
+              Positioned(
+                left: 2.5,
+                top: 2.5,
+                child: AnimatedContainer(
+                  height: 10,
+                  width: 10,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50)),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.bounceIn,
+                ),
+              ),
+            ],
+          ),
         const SizedBox(
           height: 10,
         ),
         AnimatedContainer(
-          height: 100,
+          height: todo.sottotitolo.length / 2 + 90.0,
           width: 3,
           decoration: BoxDecoration(
               color: Colors.deepOrange,

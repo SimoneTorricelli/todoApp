@@ -1,4 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/utility/widget/timeline.dart';
+
+import '../../home/home.dart';
+
+DateTime selectedDate = DateTime.now(); // TO tracking date
 
 class Calendar extends StatefulWidget {
   const Calendar();
@@ -8,8 +15,6 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  DateTime selectedDate = DateTime.now(); // TO tracking date
-
   int currentDateSelectedIndex = 0; //For Horizontal Date
   ScrollController scrollController =
       ScrollController(); //To Track Scroll of ListView
@@ -33,6 +38,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    ReadData readData = Provider.of<ReadData>(context);
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,10 +91,17 @@ class _CalendarState extends State<Calendar> {
                           physics: const BouncingScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
                             return InkWell(
+                              key: const Key('setData'),
                               borderRadius: BorderRadius.circular(15),
                               splashColor: Colors.deepOrange.withOpacity(0),
                               highlightColor: Colors.deepOrange.withOpacity(0),
                               onTap: () {
+                                setState(() {
+                                  selectedDate =
+                                      DateTime.now().add(Duration(days: index));
+                                });
+
+                                readData.setData();
                                 if (currentDateSelectedIndex != index) {
                                   setState(() {
                                     currentDateSelectedIndex = index;
@@ -159,5 +172,24 @@ class _CalendarState extends State<Calendar> {
         ],
       ),
     );
+  }
+}
+
+class ReadData with ChangeNotifier, DiagnosticableTreeMixin {
+  List<dynamic> _listToday = [];
+
+  List<dynamic>? get listToday => _listToday;
+
+  void setData() {
+    _listToday = todoList
+        .where((element) =>
+            element.data.toString().substring(0, 10) ==
+            selectedDate.toString().substring(0, 10))
+        .toList();
+    notifyListeners();
+  }
+
+  List<dynamic> getData() {
+    return _listToday;
   }
 }
