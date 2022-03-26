@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,11 @@ class _CalendarState extends State<Calendar> {
     "November",
     "December"
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +85,7 @@ class _CalendarState extends State<Calendar> {
                   Padding(
                     padding: const EdgeInsets.all(1.0),
                     child: SizedBox(
-                        height: 85,
+                        height: 95,
                         child: ListView.separated(
                           shrinkWrap: true,
                           separatorBuilder: (BuildContext context, int index) {
@@ -109,56 +115,79 @@ class _CalendarState extends State<Calendar> {
                                 }
                               },
                               child: Container(
-                                width: 65,
+                                width: 60,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      listOfDays[index].toUpperCase(),
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400,
-                                          color:
-                                              currentDateSelectedIndex == index
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Badge(
+                                    padding: EdgeInsets.all(5),
+                                    badgeColor: Colors.deepOrangeAccent,
+                                    badgeContent: Text(
+                                      todoList
+                                          .where((element) =>
+                                              element.data
+                                                  .toString()
+                                                  .substring(0, 10) ==
+                                              DateTime.now()
+                                                  .add(Duration(days: index))
+                                                  .toString()
+                                                  .substring(0, 10))
+                                          .toList()
+                                          .length
+                                          .toString(),
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          listOfDays[index].toUpperCase(),
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w400,
+                                              color: currentDateSelectedIndex ==
+                                                      index
                                                   ? Colors.deepOrange
                                                   : Colors.black45),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      DateTime.now()
-                                          .add(Duration(days: index))
-                                          .day
-                                          .toString(),
-                                      style: TextStyle(
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              currentDateSelectedIndex == index
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          DateTime.now()
+                                              .add(Duration(days: index))
+                                              .day
+                                              .toString(),
+                                          style: TextStyle(
+                                              fontSize: 19,
+                                              fontWeight: FontWeight.bold,
+                                              color: currentDateSelectedIndex ==
+                                                      index
                                                   ? Colors.deepOrange
                                                   : Colors.black87),
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        if (currentDateSelectedIndex == index)
+                                          AnimatedContainer(
+                                            height: 7,
+                                            width: 7,
+                                            decoration: BoxDecoration(
+                                                color: Colors.deepOrange,
+                                                borderRadius:
+                                                    BorderRadius.circular(50)),
+                                            duration: const Duration(
+                                                milliseconds: 800),
+                                            curve: Curves.bounceIn,
+                                          ),
+                                      ],
                                     ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    if (currentDateSelectedIndex == index)
-                                      AnimatedContainer(
-                                        height: 7,
-                                        width: 7,
-                                        decoration: BoxDecoration(
-                                            color: Colors.deepOrange,
-                                            borderRadius:
-                                                BorderRadius.circular(50)),
-                                        duration:
-                                            const Duration(milliseconds: 800),
-                                        curve: Curves.bounceIn,
-                                      ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             );
